@@ -4,18 +4,21 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 571634110936.dkr.ecr.ap-northeast-1.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo "IMAGE_TAG=${IMAGE_TAG}"
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t test-container .
-      - docker tag test-container:latest 571634110936.dkr.ecr.ap-northeast-1.amazonaws.com/test-container:latest
+      - docker tag test-container:latest 571634110936.dkr.ecr.ap-northeast-1.amazonaws.com/test-container:${IMAGE_TAG}
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
-      - docker push 571634110936.dkr.ecr.ap-northeast-1.amazonaws.com/test-container:latest
+      - docker push 571634110936.dkr.ecr.ap-northeast-1.amazonaws.com/test-container:${IMAGE_TAG}
       - echo Writing image definitions file...
-      - printf '[{"name":"test-container","imageUri":"571634110936.dkr.ecr.ap-northeast-1.amazonaws.com/test-container:latest"}]' > imagedefinitions.json
+      - printf '[{"name":"test-container","imageUri":"571634110936.dkr.ecr.ap-northeast-1.amazonaws.com/test-container:${IMAGE_TAG}"}]' > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
