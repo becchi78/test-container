@@ -20,7 +20,7 @@ class MyHandler(SimpleHTTPRequestHandler):
         self.wfile.write(f"Hello from {socket.gethostname()}!".encode())
 
 httpd = HTTPServer(("0.0.0.0", 80), MyHandler)
-print("Server running on port 80")
+print("Server running on port 80!!")
 httpd.serve_forever()
 EOF
 
